@@ -1,0 +1,5 @@
+﻿_,Prediction,ID,Facts
+➕,pos,example_1,"contains(oid_3, example_26)"
+➕,pos,example_2,"contains(oid_3, example_26)"
+➕,pos,example_3,"contains(oid_3, example_26)"
+➕,neg,example_4,"contains(oid_3, example_26)"

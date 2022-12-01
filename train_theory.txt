@@ -1,0 +1,2 @@
+eastbound(A) :-
+   has_car(A,B), short(B), closed(B).
