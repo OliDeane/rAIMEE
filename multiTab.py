@@ -32,39 +32,46 @@ intro = html.Div([
 
 induced_rules = html.Div([
 
-    html.Div(
-        html.P(
-            children=["Model Information",
-            html.Br(),
-            html.Br(),
-            html.Br(),
-            "Dataset Information"
-            ],
-            className="menu-title"
+    dbc.Row([
+        dbc.Col([
+            html.Div(
+                html.P(
+                    children=["Model Information",
+                    html.Br(),
+                    html.Br(),
+                    html.Br(),
+                    "Dataset Information"
+                    ],
+                    className="menu-title"
+                ),
+                style={'margin-top':'40px', 'box-shadow': '0 4px 6px 0 rgba(0, 0, 0, 0.18)', 
+                    'margin-left':'20px', 'margin-right':'0px', 'margin-bottom': '24px', 'width':535, 'height':212},
+            ),
+            html.Div(
+            html.P(
+                children=["Generated Rules By Class",
+                "Dataset Information"
+                ],
+                className="menu-title"
+            ),
+            style={'margin-top':'40px', 'box-shadow': '0 4px 6px 0 rgba(0, 0, 0, 0.18)', 
+                'margin-left':'20px', 'margin-right':'0px', 'width':535, 'height':626},
         ),
-        style={'margin-top':'40px', 'box-shadow': '0 4px 6px 0 rgba(0, 0, 0, 0.18)', 
-            'margin-left':'20px', 'margin-right':'20px', 'margin-bottom': '24px', 'width':535, 'height':212},
-    ),
-    html.Div(
-        html.P(
-            children=["Generated Rules By Class",
-            "Dataset Information"
-            ],
-            className="menu-title"
+        ]),
+        
+        dbc.Col([
+            html.Div(
+            html.P(
+                children=["Generated Rules By Class",
+                "Dataset Information"
+                ],
+                className="menu-title"
+            ),
+            style={'margin-top':'40px', 'box-shadow': '0 4px 6px 0 rgba(0, 0, 0, 0.18)', 
+                'margin-right':'20px', 'margin-bottom': '24px', 'width':1070, 'height':626},
         ),
-        style={'margin-top':'60px', 'box-shadow': '0 4px 6px 0 rgba(0, 0, 0, 0.18)', 
-            'margin-left':'20px', 'margin-right':'20px', 'margin-bottom': '24px', 'width':535, 'height':626},
-    ),
-    html.Div(
-        html.P(
-            children=["Generated Rules By Class",
-            "Dataset Information"
-            ],
-            className="menu-title"
-        ),
-        style={'margin-top':'60px', 'box-shadow': '0 4px 6px 0 rgba(0, 0, 0, 0.18)', 
-            'margin-left':'20px', 'margin-right':'20px', 'margin-bottom': '24px', 'width':535, 'height':626},
-    ),
+        ])
+    ])
 ])
 
 
@@ -94,7 +101,6 @@ navbar = dbc.Navbar(
     color="dark",
     dark=True,
 )
-
 
 # add callback for toggling the collapse on small screens
 app.layout = html.Div([
