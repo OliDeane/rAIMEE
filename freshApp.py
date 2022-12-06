@@ -196,9 +196,8 @@ app.layout = html.Div(
             style={'max-width': '2048px',
             'padding-right': '10px', 'padding-left': '10px', 'margin-bottom':'96px',
              'margin-top': '32px', 'display':'flex'},
-        
         ),
-
+    
     ]
 )
 
@@ -253,7 +252,6 @@ def create_integrityHypothesis(data):
             html.P(id='callback-result', children=''),
             ])
 
-
 @app.callback(
     dash.dependencies.Output('callback-result', 'children'),
     [dash.dependencies.Input('submit', 'n_clicks')],
@@ -264,7 +262,6 @@ def update_output(n_clicks, value):
         add_constraint(value)
         return html.Span(f'Selected string: "{value}"', style=dict(color='green'))
     return html.Span('Nothing selected', style=dict(color='red'))
-
 
 @app.callback(
     Output("table1", "style_data_conditional"),
@@ -314,7 +311,5 @@ def update_selected_row_color(active):
         )
     return style_data_conditional
 
-
-
 if __name__ == "__main__":
-    app.run_server(debug=True)
+    app.run_server(debug=True, port=8888)

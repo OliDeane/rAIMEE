@@ -76,3 +76,31 @@ body {
   font-weight: bold;
   color: #079A82;
 }
+
+.button {
+  font-size: 12px; 
+  width: 140px;
+  display: inline-block; 
+  margin-left:10px; 
+  margin-right: 5px; 
+  height:37px;
+  margin-bottom: 10px; 
+}
+
+.infoBox {
+  margin-top: 40px; 
+  margin-left: 20px;
+  margin-right: 0px;
+  width: 535;
+  height: 212;
+  box-shadow: 0 4px 6px 0 rgba(0, 0, 0, 0.18);
+}
+
+.midInfoBox {
+  margin-top: 0px; 
+  margin-right: 20px;
+  margin-bottom: 24px;
+  width: 535vw;
+  height: 212vh;
+  box-shadow: 0 4px 6px 0 rgba(0, 0, 0, 0.18);
+}
