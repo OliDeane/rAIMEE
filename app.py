@@ -24,6 +24,21 @@ def generate_coverageGraph(data_path="coverageData.csv"):
     fig.update(layout_coloraxis_showscale=False)
     return fig
 
+# Create tab switch for displaying in natural language
+nlSwitch = dbc.Switch(
+                    value=True,
+                    id='restricted_search',
+                    label='Display in natural language',
+                    input_class_name='bg-success'
+                    )
+
+shortNlSwitch = dbc.Switch(
+                    value=True,
+                    id='restricted_search',
+                    label='NL',
+                    input_class_name='bg-success'
+                    )
+
 # Create styles for tab setup
 tabs_styles = {
     'height': '44px'
@@ -141,24 +156,6 @@ dataset_overview = html.Div([
 ])
 
 # Rule extraction tab
-hypothesisCard = dbc.Card(
-    [
-        dbc.CardBody(
-            [
-                html.H4("Generated Rules", className="card-title"),
-                dbc.Switch(
-                    value=True,
-                    id='restricted_search',
-                    label='Display rules in natural language',
-                    input_class_name='bg-success'
-                    ),
-                html.Div(id = 'hypothesis-box', children = []),
-                
-            ]
-        ),
-    ],
-    style={"margin-top":"1rem", "margin-left":"1rem", "width": "30rem", "height":"36rem", "overflow-y":"scroll"},
-)
 induceCard = dbc.Card(
     [
         dbc.CardBody(
@@ -176,12 +173,25 @@ induceCard = dbc.Card(
     ],
     style={"margin-top":"1rem", "margin-left":"1rem", "width": "30rem", "height":"18rem", "overflow-y":"scroll"},
 )
+hypothesisCard = dbc.Card(
+    [
+        dbc.CardBody(
+            [
+                html.H4("Generated Rules", className="card-title"),
+                nlSwitch,
+                html.Div(id = 'hypothesis-box', children = []),
+                
+            ]
+        ),
+    ],
+    style={"margin-top":"1rem", "margin-left":"1rem", "width": "30rem", "height":"36rem", "overflow-y":"scroll"},
+)
 ruleCoverageCard = dbc.Card(
     [
         dbc.CardBody(
             [
                 html.H4("Rule Coverage", className="card-title"),
-                html.P("Visualization of the induced rule set", className="card-text"),
+                html.H6("Visualization of the induced rule set", className="card-subtitle"),
                 html.Div(id = 'ruleCoverageGraph-box', children=[])
             
             ]
@@ -189,7 +199,6 @@ ruleCoverageCard = dbc.Card(
     ],
     style={"margin-top":"1rem", "margin-left":"2rem", "margin-right":"2rem", "width": "68rem", "height":"55rem"}
 )
-
 induced_rules = html.Div([
     dbc.Row([
         dbc.Col([
@@ -204,9 +213,82 @@ induced_rules = html.Div([
     ])
 ])
 
-compare_model = html.Div([
-                    html.H3("Model Comparison ()")
-                ])
+# Model editing tab
+inConHeader = html.Div([
+                html.Div([
+                    html.H4("Edit Hypothesis", className="card-title"),
+                ],
+                style={"display": "inline-block"}
+                ),
+                html.Div([
+                    dbc.Button('Show Rules', id = 'induce-button', color = "primary", className='me-2', n_clicks=0),
+                    dcc.Store(id='hypothesis-store', data=[], storage_type='memory')
+                ], 
+                style={"display": "inline-block", "margin-left":"23rem"},
+                ),
+                html.H6(["Highlight predicates and submit constraints", html.Br(), html.Br()], className="card-subtitle"),
+                shortNlSwitch
+            ])
+inConInnerDiv = html.Div([
+    html.Div(id = 'hypothesis-box', children = [html.P(html.Br())]*6)
+],
+style={"height":"17rem", "margin-bottom":"1rem"} # Add "overflow": "scroll" if needed
+)
+integrityConstraintCard = dbc.Card(
+    [
+        dbc.CardBody(
+            [
+                inConHeader,
+                inConInnerDiv,
+                dbc.Button('Add', id = 'remove-button', color = "success", className='me-2', n_clicks=0),
+                dbc.Button('Remove', id = 'add-button', color = "danger", className='me-2', n_clicks=0),
+                dbc.Button('Reset', id = 'reset-button', color = "secondary", className='me-2', n_clicks=0),
+            ]
+        ),
+    ],
+    style={"margin-top":"1rem", "margin-left":"1rem", "width": "45rem", "height":"30rem"},
+)
+
+bottomClauseCard = dbc.Card(
+    [
+        dbc.CardBody(
+            [
+                html.H4("Bottom Clause", className="card-title"),
+                html.H6("Add constraints to bottom clause generated for select examples", className="card-subtitile"),
+                shortNlSwitch,
+               
+            ]
+        ),
+    ],
+    style={"margin-top":"1rem", "margin-left":"1rem", "width": "45rem", "height":"30rem"},
+)
+assertExamplesCard = dbc.Card(
+    [
+        dbc.CardBody(
+            [
+                html.H4("Assert Examples", className="card-title"),
+                html.H6("Add counter examples to guide model learning", className="card-subtitle")
+            
+            ]
+        ),
+    ],
+    style={"margin-top":"1rem", "margin-left":"2rem", "margin-right":"2rem", "width": "50rem", "height":"55rem"}
+)
+model_editor = html.Div([
+    dbc.Row([
+        dbc.Col([
+            integrityConstraintCard,
+            bottomClauseCard
+        ]),
+        
+        dbc.Col([
+            assertExamplesCard
+        ])
+    
+    ])
+])
+
+
 
 # Main app layout
 app.layout = html.Div([
@@ -220,8 +302,8 @@ app.layout = html.Div([
         ], style=tabs_styles),
     html.Div(id='tabs-content-inline')
     ])
-
 ])
+
 
 @app.callback(Output('tabs-content-inline', 'children'),
               Input('tabs-styled-with-inline', 'value'))
@@ -233,7 +315,7 @@ def render_content(tab):
     elif tab == 'tab-3':
         return induced_rules
     elif tab == 'tab-4':
-        return compare_model
+        return model_editor
 
 @app.callback(
     dash.dependencies.Output('hypothesis-store', 'data'),
