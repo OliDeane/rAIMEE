@@ -9,7 +9,6 @@ import numpy as np
 PLOTLY_LOGO = "https://images.plot.ly/logo/new-branding/plotly-logomark.png"
 
 # Instantiate app
-# app = Dash(external_stylesheets=[dbc.themes.JOURNAL])
 app = Dash(external_stylesheets=[dbc.themes.BOOTSTRAP])
 
 PLOTLY_LOGO = "https://images.plot.ly/logo/new-branding/plotly-logomark.png"

@@ -64,7 +64,6 @@ def ilp_induce_incremental(dataset, prolog):
     list(prolog.query("induce_incremental."))
     list(prolog.query(f"write_rules('{dataset}_theory.txt')."))
 
-
 def save_ruleset_to_prolog(dataset, filename, full_theory):
     file = open(filename, 'w')
     file.write(f':-consult("aleph_input/{dataset}_aleph.bk").\n')
