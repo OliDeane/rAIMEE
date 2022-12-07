@@ -5,6 +5,7 @@ from dash_bootstrap_components._components.Container import Container
 import plotly.express as px
 import subprocess
 import numpy as np
+import pandas as pd
 
 PLOTLY_LOGO = "https://images.plot.ly/logo/new-branding/plotly-logomark.png"
 
@@ -13,14 +14,15 @@ app = Dash(external_stylesheets=[dbc.themes.BOOTSTRAP])
 PLOTLY_LOGO = "https://images.plot.ly/logo/new-branding/plotly-logomark.png"
 
 # Create placeholder rule coverage figure
-df = px.data.gapminder().query("year == 2007")
-fig = px.treemap(df, path=[px.Constant("world"), 'continent', 'country'], values='pop',
-                  color='lifeExp', hover_data=['iso_alpha'],
-                  color_continuous_scale='RdBu',
-                  color_continuous_midpoint=np.average(df['lifeExp'], weights=df['pop']))
-fig.update_layout(margin = dict(t=0, l=0, r=0, b=0), paper_bgcolor='rgba(0,0,0,0)', 
-    plot_bgcolor='rgba(0,0,0,0)')
-fig.update(layout_coloraxis_showscale=False)
+def generate_coverageGraph(data_path="coverageData.csv"):
+    df = pd.read_csv(data_path)
+    fig = px.treemap(df, path=['label', 'rule_ID'], 
+                    values='examples_covered', color='label')
+    fig.update_layout(margin = dict(t=50, l=25, r=25, b=25))
+    fig.update_layout(margin = dict(t=0, l=0, r=0, b=0), paper_bgcolor='rgba(0,0,0,0)', 
+        plot_bgcolor='rgba(0,0,0,0)')
+    fig.update(layout_coloraxis_showscale=False)
+    return fig
 
 # Create styles for tab setup
 tabs_styles = {
@@ -293,7 +295,7 @@ def create_datasetInfo(data):
 def create_ruleCoverageGraph(data):
 
     if data:
-        return dcc.Graph(figure=fig, style={'width':"65rem", 'height':"45rem"})
+        return dcc.Graph(figure=generate_coverageGraph(), style={'width':"65rem", 'height':"45rem"})
 
 
 if __name__ == '__main__':
