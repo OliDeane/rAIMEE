@@ -1,2 +1,6 @@
-eastbound(A) :-
-   has_car(A,B), short(B), closed(B).
+true_mutagenic(A) :-
+   molecule_ind1(A,1).
+true_mutagenic(A) :-
+   molecule_logp(A,3.26).
+true_mutagenic(A) :-
+   molecule_logp(A,3).
