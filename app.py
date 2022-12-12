@@ -10,7 +10,7 @@ import pandas as pd
 PLOTLY_LOGO = "https://images.plot.ly/logo/new-branding/plotly-logomark.png"
 
 # Instantiate app
-app = Dash(external_stylesheets=[dbc.themes.SLATE])
+app = Dash(external_stylesheets=[dbc.themes.BOOTSTRAP])
 PLOTLY_LOGO = "https://images.plot.ly/logo/new-branding/plotly-logomark.png"
 
 # Create placeholder rule coverage figure
