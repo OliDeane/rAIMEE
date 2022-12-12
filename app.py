@@ -10,7 +10,7 @@ import pandas as pd
 PLOTLY_LOGO = "https://images.plot.ly/logo/new-branding/plotly-logomark.png"
 
 # Instantiate app
-app = Dash(external_stylesheets=[dbc.themes.BOOTSTRAP])
+app = Dash(external_stylesheets=[dbc.themes.SLATE])
 PLOTLY_LOGO = "https://images.plot.ly/logo/new-branding/plotly-logomark.png"
 
 # Create placeholder rule coverage figure
@@ -148,10 +148,71 @@ introCard = dbc.Card(
 intro = html.Div([introCard])
 
 # Dataset Overview
+datasetDropdown = html.Div(
+    [
+        dcc.Dropdown(
+            options=[
+                {'label': 'Mutagenesis', 'value': 'opt1'},
+                {'label': 'Trains', 'value': 'opt1'}
+            ],
+            style={
+                'width': '100%',
+                'margin-left': '2cm',
+                'margin-right': '2cm',
+            }
+        )
+    ], style={'width':'80rem'}
+)
+selectDataCard = dbc.Card(
+    [
+        dbc.CardBody(
+            [
+                html.H4("Preloaded Datasets", className="card-title"),
+                html.H6("Select data", className="card-subtitle", style={"margin-bottom":"rem"}),
+                datasetDropdown,
+                dbc.Button('Submit', id = 'dataSubmit-button', color = "primary", className='me-2', n_clicks=0),
+
+            ]
+        )
+    ],
+    style={"margin-top":"1rem", "margin-left":"1rem", "margin-right":"1rem"},
+)
+
+# Display Tables
+dataset_button_group = html.Div(
+    [
+        dbc.RadioItems(
+            id="radios",
+            className="btn-group",
+            inputClassName="btn-check",
+            labelClassName="btn btn-outline-primary",
+            labelCheckedClassName="active",
+            options=[
+                {"label": "Molecule", "value": "molecule"},
+                {"label": "Bond", "value": "bond"},
+                {"label": "Atom", "value": "atom"},
+            ],
+            value="molecule",
+        ),
+        html.Div(id="output"),
+    ],
+    className="radio-group",
+)
+presentDataCard = dbc.Card(
+    [
+        html.H4("Mutagenesis Dataset", className="card-title", style={"margin-left":"1rem", "margin-top":"1rem"}),
+        html.H6("The dataset comprises of 188 molecules trialed for mutagenicity on Salmonella typhimurium.",
+            className="card-subtitle", style={"margin-bottom":"1rem", "margin-left":"1rem"}),
+        dataset_button_group
+    ],
+    style={"margin-top":"1rem", "margin-left":"1rem", "margin-right":"1rem"},
+)
+
+# Combine into dataset_overview variable
 dataset_overview = html.Div([
     html.Div([
-        html.H3("Select Dataset"),
-        html.P("Use the toggle to select a preloaded dataset or upload a file.")
+        selectDataCard,
+        presentDataCard
     ]),
 ])
 
@@ -248,7 +309,6 @@ integrityConstraintCard = dbc.Card(
     ],
     style={"margin-top":"1rem", "margin-left":"1rem", "width": "45rem", "height":"30rem"},
 )
-
 bottomClauseCard = dbc.Card(
     [
         dbc.CardBody(
@@ -287,7 +347,6 @@ model_editor = html.Div([
     
     ])
 ])
-
 
 
 # Main app layout
@@ -379,6 +438,16 @@ def create_ruleCoverageGraph(data):
     if data:
         return dcc.Graph(figure=generate_coverageGraph(), style={'width':"65rem", 'height':"45rem"})
 
+@app.callback(Output("output", "children"), [Input("radios", "value")])
+def display_data_table(value):
+    mutagDf = pd.read_csv(f"./data/mutag188/Mutag188_{value}.csv")
+    return html.Div(
+        [
+             dbc.Table.from_dataframe(mutagDf.head(5), striped=True, bordered=True, hover=True)
+        ],
+        style={"margin-top":"1rem", "margin-left":"1rem", "margin-right":"1rem"},
+    )
+       
 
 if __name__ == '__main__':
     app.run_server(debug=True)
