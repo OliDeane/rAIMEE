@@ -10411,3 +10411,7 @@ molecule(d96,1,0,4.18,-2.871,yes).
 molecule(d97,1,0,3.95,-1.361,yes).
 molecule(d98,0,0,1.65,-1.598,no).
 molecule(d99,1,0,2.72,-2.159,yes).
+
+:- consult('constraints.pl').
+bodyList(Body, FinalList) :- clause2list(Body,[],Output, Clause), list_to_term(Clause, Term), insertAtEnd(Term,Output,FinalList).
+

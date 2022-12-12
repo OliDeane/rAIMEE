@@ -259,7 +259,8 @@ def create_integrityHypothesis(data):
 def update_output(n_clicks, value):
     if value:
         # Add constraint to the background knowledge
-        add_constraint(value)
+        # add_constraint(value)
+        print('Hello World')
         return html.Span(f'Selected string: "{value}"', style=dict(color='green'))
     return html.Span('Nothing selected', style=dict(color='red'))
 

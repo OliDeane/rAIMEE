@@ -6,6 +6,7 @@ import plotly.express as px
 import subprocess
 import numpy as np
 import pandas as pd
+from prologUtils import add_constraint
 
 PLOTLY_LOGO = "https://images.plot.ly/logo/new-branding/plotly-logomark.png"
 
@@ -24,6 +25,19 @@ def generate_coverageGraph(data_path="coverageData.csv"):
     fig.update(layout_coloraxis_showscale=False)
     return fig
 
+# Function for cleaning hypothesis list
+def str2lst(hypothesis_text):
+
+    hyp_list = hypothesis_text[1:-2].split(".',")
+    
+    result = []
+    for idx, rule in enumerate(hyp_list):
+        result.append(f'R{idx}: {rule}')
+        result.append(html.P(html.Br()))
+
+    return result
+
+
 # Create tab switch for displaying in natural language
 nlSwitch = dbc.Switch(
                     value=True,
@@ -31,7 +45,6 @@ nlSwitch = dbc.Switch(
                     label='Display in natural language',
                     input_class_name='bg-success'
                     )
-
 shortNlSwitch = dbc.Switch(
                     value=True,
                     id='restricted_search',
@@ -291,7 +304,18 @@ inConHeader = html.Div([
                 shortNlSwitch
             ])
 inConInnerDiv = html.Div([
-    html.Div(id = 'hypothesis-box', children = [html.P(html.Br())]*6)
+    html.Div(id = 'hypothesisIC-box', children = [
+        html.P(html.Br()),
+        html.P(html.Br()),
+        html.P(html.Br()),
+        html.P(html.Br()),
+        html.P(html.Br()),
+        html.P(html.Br()),
+        html.P(html.Br()),
+        dbc.Button('Add', id = 'remove-button', color = "success", className='me-2', n_clicks=0),
+        dbc.Button('Remove', id = 'add-button', color = "danger", className='me-2', n_clicks=0),
+        dbc.Button('Reset', id = 'reset-button', color = "secondary", className='me-2', n_clicks=0),
+    ])
 ],
 style={"height":"17rem", "margin-bottom":"1rem"} # Add "overflow": "scroll" if needed
 )
@@ -301,14 +325,15 @@ integrityConstraintCard = dbc.Card(
             [
                 inConHeader,
                 inConInnerDiv,
-                dbc.Button('Add', id = 'remove-button', color = "success", className='me-2', n_clicks=0),
-                dbc.Button('Remove', id = 'add-button', color = "danger", className='me-2', n_clicks=0),
-                dbc.Button('Reset', id = 'reset-button', color = "secondary", className='me-2', n_clicks=0),
+
             ]
         ),
     ],
-    style={"margin-top":"1rem", "margin-left":"1rem", "width": "45rem", "height":"30rem"},
+    style={"margin-top":"1rem", "margin-left":"1rem", "width": "45rem", "height":"30rem", "overflow-y": "scroll"},
 )
+
+
+
 bottomClauseCard = dbc.Card(
     [
         dbc.CardBody(
@@ -448,6 +473,55 @@ def display_data_table(value):
         style={"margin-top":"1rem", "margin-left":"1rem", "margin-right":"1rem"},
     )
        
+
+@app.callback(
+    Output('hypothesisIC-box', 'children'),
+    Input('hypothesis-store', 'data')
+)
+def create_hypothesis(data):
+    print(type(data))
+    print(data)
+    hypothesis_text = data["hypothesis"]
+    print(hypothesis_text)
+
+    rule_list = str2lst(hypothesis_text)
+
+
+    return html.Div([
+            html.P(id='selection-container', children=rule_list),
+            dcc.Input(id='selection-target', value='', style=dict(display='none')),
+            dbc.Button(id='submit', children='Add', color = "primary", className='me-2', n_clicks=0),
+            dbc.Button(id='remove-button', children='Remove', color = "danger", className='me-2', n_clicks=0),
+            dbc.Button('Reset', id = 'reset-button', color = "secondary", className='me-2', n_clicks=0),
+            html.P(id='removed-predicate', children=[], style={'top-margin':'0rem'}),
+            html.P(id='added-predicate', children=[], style={'top-margin':'0rem'}),
+            ])
+
+@app.callback(
+    dash.dependencies.Output('added-predicate', 'children'),
+    [dash.dependencies.Input('submit', 'n_clicks')],
+    [dash.dependencies.State('selection-target', 'value')],)
+def update_output(n_clicks, value):
+    if value:
+        # Add constraint to the background knowledge
+        add_constraint(value)
+
+        return html.Span(f'Added Predicate: "{value}"', style=dict(color='blue'))
+
+@app.callback(
+    dash.dependencies.Output('removed-predicate', 'children'),
+    [dash.dependencies.Input('remove-button', 'n_clicks')],
+    [dash.dependencies.State('selection-target', 'value')],)
+def removePredicate(n_clicks, value):
+    if value:
+        # Add constraint to the background knowledge
+        print(value)
+        add_constraint(value)
+
+        return html.Span(f'Removed Predicate: "{value}"', style=dict(color='red'))
+    
+
+
 
 if __name__ == '__main__':
     app.run_server(debug=True)
