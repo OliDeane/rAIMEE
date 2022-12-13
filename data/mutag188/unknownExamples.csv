@@ -1,0 +1,11 @@
+﻿_,Prediction,ID,Facts
+➕,pos,d189,"contains(oid_3, example_26)"
+➕,neg,d190,"contains(oid_3, example_26)"
+➕,neg,d191,"contains(oid_3, example_26)"
+➕,neg,d192,"contains(oid_3, example_26)"
+➕,pos,d193,"contains(oid_3, example_26)"
+➕,neg,d193,"contains(oid_3, example_26)"
+➕,neg,d194,"contains(oid_3, example_26)"
+➕,neg,d195,"contains(oid_3, example_26)"
+➕,pos,d196,"contains(oid_3, example_26)"
+➕,neg,d197,"contains(oid_3, example_26)"

@@ -1,12 +1,12 @@
 import dash_bootstrap_components as dbc
-from dash import Input, Output, State, html, Dash, dcc
+from dash import Input, Output, State, html, Dash, dcc, dash_table
 import dash
 from dash_bootstrap_components._components.Container import Container
 import plotly.express as px
 import subprocess
 import numpy as np
 import pandas as pd
-from prologUtils import add_constraint
+from prologUtils import add_constraint, add_positive
 
 PLOTLY_LOGO = "https://images.plot.ly/logo/new-branding/plotly-logomark.png"
 
@@ -195,7 +195,7 @@ selectDataCard = dbc.Card(
 dataset_button_group = html.Div(
     [
         dbc.RadioItems(
-            id="radios",
+            id="dataset_radios",
             className="btn-group",
             inputClassName="btn-check",
             labelClassName="btn btn-outline-primary",
@@ -332,8 +332,6 @@ integrityConstraintCard = dbc.Card(
     style={"margin-top":"1rem", "margin-left":"1rem", "width": "45rem", "height":"30rem", "overflow-y": "scroll"},
 )
 
-
-
 bottomClauseCard = dbc.Card(
     [
         dbc.CardBody(
@@ -347,18 +345,51 @@ bottomClauseCard = dbc.Card(
     ],
     style={"margin-top":"1rem", "margin-left":"1rem", "width": "45rem", "height":"30rem"},
 )
+style_data_conditional = [
+    {
+        "if": {"state": "active"},
+        "backgroundColor": "rgba(150, 180, 225, 0.2)",
+        "border": "1px solid blue",
+    },
+    {
+        "if": {"state": "selected"},
+        "backgroundColor": "rgba(0, 116, 217, .03)",
+        "border": "1px solid blue",
+    },
+]
+assertExamples_button_group = html.Div(
+    [
+        dbc.RadioItems(
+            id="assertExamples_radios",
+            className="btn-group",
+            inputClassName="btn-check",
+            labelClassName="btn btn-outline-primary",
+            labelCheckedClassName="active",
+            options=[
+                {"label": "Unknown", "value": "unknown"},
+                {"label": "Positive", "value": "positive"},
+                {"label": "Negative", "value": "negative"},
+            ],
+            value="molecule",
+        ),
+        html.Div(id="assertExamples_output"),
+    ],
+    className="radio-group",
+)
+
 assertExamplesCard = dbc.Card(
     [
         dbc.CardBody(
             [
                 html.H4("Assert Examples", className="card-title"),
-                html.H6("Add counter examples to guide model learning", className="card-subtitle")
-            
+                html.H6("Add counter examples to guide model learning", className="card-subtitle", style={"margin-bottom":"1rem"}),
+                assertExamples_button_group
             ]
         ),
     ],
     style={"margin-top":"1rem", "margin-left":"2rem", "margin-right":"2rem", "width": "50rem", "height":"55rem"}
 )
+
 model_editor = html.Div([
     dbc.Row([
         dbc.Col([
@@ -373,7 +404,6 @@ model_editor = html.Div([
     ])
 ])
 
-
 # Main app layout
 app.layout = html.Div([
     html.Div(navbar),
@@ -387,7 +417,6 @@ app.layout = html.Div([
     html.Div(id='tabs-content-inline')
     ])
 ])
-
 
 @app.callback(Output('tabs-content-inline', 'children'),
               Input('tabs-styled-with-inline', 'value'))
@@ -450,7 +479,7 @@ def create_datasetInfo(data):
 
     if data:
         return html.P(
-            html.P("Total count: 10 | Label T : 5 (50%) |  Label F : 5 (50%)", 
+            html.P("Total count: 188 | Label T : 94 (50%) |  Label F : 94 (50%)", 
             className="card-text")
         )
 
@@ -463,7 +492,10 @@ def create_ruleCoverageGraph(data):
     if data:
         return dcc.Graph(figure=generate_coverageGraph(), style={'width':"65rem", 'height':"45rem"})
 
-@app.callback(Output("output", "children"), [Input("radios", "value")])
+@app.callback(
+    Output("output", "children"),
+    [Input("dataset_radios", "value")]
+)
 def display_data_table(value):
     mutagDf = pd.read_csv(f"./data/mutag188/Mutag188_{value}.csv")
     return html.Div(
@@ -473,6 +505,24 @@ def display_data_table(value):
         style={"margin-top":"1rem", "margin-left":"1rem", "margin-right":"1rem"},
     )
        
+@app.callback(
+    Output("assertExamples_output", "children"),
+    [Input("assertExamples_radios", "value")]
+)
+def display_assertExamples(value):
+    df = pd.read_csv(f"./data/mutag188/{value}Examples.csv")    
+    return html.Div(
+    [
+        dash_table.DataTable(
+            id="assertExamplesTable",
+            columns=[{"name": i, "id": i} for i in df.columns],
+            data=df.to_dict("records"),
+            style_cell={'textAlign':'left'},
+            style_data_conditional=style_data_conditional
+        ),
+    ],
+    style={"margin-top":"1rem"}
+)
 
 @app.callback(
     Output('hypothesisIC-box', 'children'),
@@ -520,6 +570,23 @@ def removePredicate(n_clicks, value):
 
         return html.Span(f'Removed Predicate: "{value}"', style=dict(color='red'))
     
+@app.callback(
+    Output("assertExamplesTable", "style_data_conditional"),
+    [Input("assertExamplesTable", "active_cell")]
+)
+def update_selected_row_color(active):
+    #style = style_data_conditional.copy()
+    print(active["row"])
+    if active:
+        style_data_conditional.append(
+            {
+                "if": {"row_index": active["row"]},
+                "backgroundColor": "rgba(150, 180, 225, 0.2)",
+                "border": "1px solid blue",
+            },
+        )
+    return style_data_conditional
+
 
 if __name__ == '__main__':
     app.run_server(debug=True, port=8050)

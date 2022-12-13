@@ -36,7 +36,6 @@ style_data_conditional = [
     },
 ]
 
-
 app.layout = html.Div(
     children=[
         html.Div(
