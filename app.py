@@ -370,7 +370,7 @@ assertExamples_button_group = html.Div(
                 {"label": "Positive", "value": "positive"},
                 {"label": "Negative", "value": "negative"},
             ],
-            value="molecule",
+            value="unknown",
         ),
         html.Div(id="assertExamples_output"),
     ],
@@ -456,11 +456,10 @@ def create_hypothesis(data):
     print(type(data))
     print(data)
     hypothesis_text = data["hypothesis"]
-    print(hypothesis_text)
 
-    return html.P(children=[
-        f"{hypothesis_text}"
-    ])
+    rule_list = str2lst(hypothesis_text)
+    print(rule_list)
+    return html.P(children=rule_list)
 
 @app.callback(
     Output('modelInfo-box', 'children'),
@@ -468,7 +467,7 @@ def create_hypothesis(data):
 )
 def create_modelInfo(data):
     return html.P(
-        html.P("Accuracy: 100.00%", className="card-text")
+        html.P("Accuracy: 86.08%", className="card-text")
     )
 
 @app.callback(
