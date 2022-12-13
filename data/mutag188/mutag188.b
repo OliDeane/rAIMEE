@@ -10414,4 +10414,3 @@ molecule(d99,1,0,2.72,-2.159,yes).
 
 :- consult('constraints.pl').
 bodyList(Body, FinalList) :- clause2list(Body,[],Output, Clause), list_to_term(Clause, Term), insertAtEnd(Term,Output,FinalList).
-

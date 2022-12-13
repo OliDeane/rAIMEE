@@ -382,7 +382,7 @@ app.layout = html.Div([
             dcc.Tab(label='Introduction', value='tab-1', style=tab_style, selected_style=tab_selected_style),
             dcc.Tab(label='Dataset Overview', value='tab-2', style=tab_style, selected_style=tab_selected_style),
             dcc.Tab(label='Induced Rules', value='tab-3', style=tab_style, selected_style=tab_selected_style),
-            dcc.Tab(label='Model Editer', value='tab-4', style=tab_style, selected_style=tab_selected_style),
+            dcc.Tab(label='Model Editor', value='tab-4', style=tab_style, selected_style=tab_selected_style),
         ], style=tabs_styles),
     html.Div(id='tabs-content-inline')
     ])
@@ -521,7 +521,5 @@ def removePredicate(n_clicks, value):
         return html.Span(f'Removed Predicate: "{value}"', style=dict(color='red'))
     
 
-
-
 if __name__ == '__main__':
-    app.run_server(debug=True)
+    app.run_server(debug=True, port=8050)
