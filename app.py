@@ -325,11 +325,10 @@ integrityConstraintCard = dbc.Card(
             [
                 inConHeader,
                 inConInnerDiv,
-
             ]
         ),
     ],
-    style={"margin-top":"1rem", "margin-left":"1rem", "width": "45rem", "height":"30rem", "overflow-y": "scroll"},
+    style={"margin-top":"1rem", "margin-left":"1rem", "width": "45rem", "height":"30rem"},
 )
 
 bottomClauseCard = dbc.Card(
@@ -536,15 +535,22 @@ def create_hypothesis(data):
     rule_list = str2lst(hypothesis_text)
 
 
-    return html.Div([
-            html.P(id='selection-container', children=rule_list),
-            dcc.Input(id='selection-target', value='', style=dict(display='none')),
+    return html.Div(
+        [
+            html.Div(
+                [
+                    html.P(id='selection-container', children=rule_list),
+                    dcc.Input(id='selection-target', value='', style=dict(display='none')),
+                ],
+                style={"height":"17rem", "overflow-y": "scroll", "margin-bottom":"1rem"}
+            ),
             dbc.Button(id='submit', children='Add', color = "primary", className='me-2', n_clicks=0),
             dbc.Button(id='remove-button', children='Remove', color = "danger", className='me-2', n_clicks=0),
             dbc.Button('Reset', id = 'reset-button', color = "secondary", className='me-2', n_clicks=0),
             html.P(id='removed-predicate', children=[], style={'top-margin':'0rem'}),
             html.P(id='added-predicate', children=[], style={'top-margin':'0rem'}),
-            ])
+        ]
+)
 
 @app.callback(
     dash.dependencies.Output('added-predicate', 'children'),
