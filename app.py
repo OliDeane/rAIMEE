@@ -212,11 +212,30 @@ dataset_button_group = html.Div(
     className="radio-group",
 )
 presentDataCard = dbc.Card(
-    [
-        html.H4("Mutagenesis Dataset", className="card-title", style={"margin-left":"1rem", "margin-top":"1rem"}),
-        html.H6("The dataset comprises of 188 molecules trialed for mutagenicity on Salmonella typhimurium.",
-            className="card-subtitle", style={"margin-bottom":"1rem", "margin-left":"1rem"}),
-        dataset_button_group
+    [   
+        dbc.Accordion(
+            [
+                dbc.AccordionItem(
+                    [
+                        html.H4("Mutagenesis Dataset", className="card-title", style={"margin-left":"1rem", "margin-top":"1rem"}),
+                        html.H6("The dataset comprises of 188 molecules trialed for mutagenicity on Salmonella typhimurium.",
+                        className="card-subtitle", style={"margin-bottom":"1rem", "margin-left":"1rem"}),
+                        dataset_button_group
+                    ],
+                    title="Table View"
+                ),
+                dbc.AccordionItem(
+                    [
+                        html.H4("Mutagenesis Dataset", className="card-title", style={"margin-left":"1rem", "margin-top":"1rem"}),
+                        html.H6("The dataset comprises of 188 molecules trialed for mutagenicity on Salmonella typhimurium.",
+                        className="card-subtitle", style={"margin-bottom":"1rem", "margin-left":"1rem"}),
+                    ],
+                    title="Graph View"
+                )
+            ],
+            start_collapsed=True
+
+        ),
     ],
     style={"margin-top":"1rem", "margin-left":"1rem", "margin-right":"1rem"},
 )
