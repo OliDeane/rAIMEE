@@ -4,7 +4,7 @@ from dash import Dash, html, Input, Output, dcc
 import dash_cytoscape as cyto
 import pandas as pd
 import random
-from app_utils import fetch_mutag_arrays
+from appUtils import fetch_mutag_arrays
 
 app = Dash(external_stylesheets=[dbc.themes.BOOTSTRAP])
 
@@ -62,10 +62,11 @@ atom_info = html.Div(
     ],
     style={"margin-top":"1rem", "margin-left":"1rem", "width": "30rem", "height":"18rem", "overflow-y":"scroll"}
 )
-
-# Rule extraction tab
 graph_view = html.Div([
     dbc.Row([
+        html.H4("Mutagenesis Dataset", className="card-title", style={"margin-left":"1rem", "margin-top":"1rem"}),
+        html.H6("The dataset comprises of 188 molecules trialed for mutagenicity on Salmonella typhimurium.",
+                        className="card-subtitle", style={"margin-bottom":"1rem", "margin-left":"1rem"}),
         dbc.Col([
             molecule_info,
             atom_info
@@ -78,14 +79,12 @@ graph_view = html.Div([
     ])
 ])
 
+
 accordion_test = dbc.Card(
     [
         dbc.Accordion(
             [
                 dbc.AccordionItem([
-                    html.H4("Mutagenesis Dataset", className="card-title", style={"margin-left":"1rem", "margin-top":"1rem"}),
-                    html.H6("The dataset comprises of 188 molecules trialed for mutagenicity on Salmonella typhimurium.",
-                        className="card-subtitle", style={"margin-bottom":"1rem", "margin-left":"1rem"}),
                     graph_view
                     ], 
                     title='Graph View')
@@ -129,7 +128,6 @@ def create_nodeInfo(data):
             ],
             style = {"margin-top":"2rem","margin-left":"1rem"}
         )
-        return html.P(children=data)
 
 
 if __name__ == '__main__':
