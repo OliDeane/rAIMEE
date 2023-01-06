@@ -13,7 +13,7 @@ left_panel = html.Div(
     [
         html.Div(
             [
-                dbc.Input(id="molInput", type="number", min=0, max=10, step=1),
+                dbc.Input(id="molInput", type="number", value=1, min=0, max=10, step=1),
                 dcc.Store(id='selectedExample-store', data=[], storage_type='memory')
             ],
             id="styled-numeric-input",
@@ -26,13 +26,24 @@ left_panel = html.Div(
 
 right_panel = html.Div(
     [
-        dbc.Toast(
-            id="node-info",
-            header="Selected Node",
+        html.Div([
+            dbc.Toast(
+            id="sample-info",
+            header="Selected Molecule",
             icon="primary",
             dismissable=True,
             is_open=True,
-        )
+            )
+        ],
+        style={'margin-bottom':'2rem'}
+        ),   
+        dbc.Toast(
+            id="node-info",
+            header="Selected Atom",
+            icon="primary",
+            dismissable=True,
+            is_open=True,
+        ),
     ],
     style={'margin-right':'-3rem'}
 )
@@ -66,15 +77,18 @@ accordion_test = dbc.Card(
     ]
 )
 
-
-
 app.layout = accordion_test
 
 @app.callback(
     Output("selectedExample-store", "data"), 
     [Input("molInput", "value")])
 def output_selectedMolecule(value):
+    '''
+    Returns information on the selected molecule.
+    Default is molecule_id 1.
+    '''
     if value:
+        print(value)
         mol_array, bond_array, atom_array = fetch_mutag_arrays(str(value))
         return {
             'molecule': mol_array,
@@ -118,20 +132,26 @@ def returnExample(data):
                 ],
                 style={"width":"30rem"}
             ),
-            html.H4(['Selected Molecule:'], className = "card-title"),
-            html.Pre(json.dumps(mol_dict, indent=2))
+            # html.H4(['Selected Molecule:'], className = "card-title"),
+            # html.Pre(json.dumps(mol_dict, indent=2))
             ]
         )
 
         return cytoscape
 
-
-
 @app.callback(Output('node-store', 'data'),
               Input('cytoscape-event-callbacks-1', 'tapNodeData'))
 def displayTapNodeData(data):
-    if data:
-        print(data)
+    if not data:
+        output_data = {
+        'id':'None',
+        'molecule_id':'None',
+        'element': 'None',
+        'atype': 'None',
+        'charge': 'None'
+        }
+        return json.dumps(output_data, indent=2)
+    else:
         atom_df = pd.read_csv('/Users/fl20994/Documents/IAI_CDT/Research_Project/XIML_ILP/rAIMEE/data/mutag188/atoms.csv')
         selected_atom = atom_df[atom_df['atom_id']==data['id']].values.tolist()[0]
         output_data = {
@@ -143,7 +163,19 @@ def displayTapNodeData(data):
         }
         return json.dumps(output_data, indent=2)
 
+@app.callback(
+    Output('sample-info', 'children'),
+    Input('selectedExample-store', 'data')
+)
+def create_exampleInfo(data):
 
+    mol_array = data['molecule'][0]
+    mol_dict = {'ID':mol_array[0],
+        'Mutagenic':mol_array[5],
+        'logP':mol_array[3],
+        'ind1':mol_array[4]
+    }
+    return html.Pre(json.dumps(mol_dict, indent=2))
 
 @app.callback(
     Output('node-info', 'children'),

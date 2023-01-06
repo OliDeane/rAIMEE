@@ -17,30 +17,6 @@ PLOTLY_LOGO = "https://images.plot.ly/logo/new-branding/plotly-logomark.png"
 app = Dash(external_stylesheets=[dbc.themes.BOOTSTRAP])
 PLOTLY_LOGO = "https://images.plot.ly/logo/new-branding/plotly-logomark.png"
 
-# Create placeholder rule coverage figure
-def generate_coverageGraph(data_path="coverageData.csv"):
-    df = pd.read_csv(data_path)
-    fig = px.treemap(df, path=['label', 'rule_ID'], 
-                    values='examples_covered', color='label')
-    fig.update_layout(margin = dict(t=50, l=25, r=25, b=25))
-    fig.update_layout(margin = dict(t=0, l=0, r=0, b=0), paper_bgcolor='rgba(0,0,0,0)', 
-        plot_bgcolor='rgba(0,0,0,0)')
-    fig.update(layout_coloraxis_showscale=False)
-    return fig
-
-# Function for cleaning hypothesis list
-def str2lst(hypothesis_text):
-
-    hyp_list = hypothesis_text[1:-2].split(".',")
-    
-    result = []
-    for idx, rule in enumerate(hyp_list):
-        result.append(f'R{idx}: {rule}')
-        result.append(html.P(html.Br()))
-
-    return result
-
-
 # Create tab switch for displaying in natural language
 nlSwitch = dbc.Switch(
                     value=True,
@@ -200,7 +176,7 @@ left_panel = html.Div(
     [
         html.Div(
             [
-                dbc.Input(id="molInput", type="number", min=0, max=10, step=1),
+                dbc.Input(id="molInput", type="number", value=1, min=0, max=10, step=1),
                 dcc.Store(id='selectedExample-store', data=[], storage_type='memory')
             ],
             id="styled-numeric-input",
@@ -212,17 +188,27 @@ left_panel = html.Div(
 )
 right_panel = html.Div(
     [
-        dbc.Toast(
-            id="node-info",
-            header="Selected Node",
+        html.Div([
+            dbc.Toast(
+            id="sample-info",
+            header="Selected Molecule",
             icon="primary",
             dismissable=True,
             is_open=True,
-        )
+            )
+        ],
+        style={'margin-bottom':'2rem'}
+        ),   
+        dbc.Toast(
+            id="node-info",
+            header="Selected Atom",
+            icon="primary",
+            dismissable=True,
+            is_open=True,
+        ),
     ],
     style={'margin-right':'-3rem'}
 )
-
 graph_view = html.Div([
     dbc.Row([
         html.H4("Mutagenesis Dataset", className="card-title", style={"margin-left":"1rem", "margin-top":"1rem"}),
@@ -239,6 +225,20 @@ graph_view = html.Div([
 ])
 
 
+schema_view = html.Div([
+    html.H4("Mutagenesis Dataset", className="card-title", style={"margin-left":"1rem", "margin-top":"1rem"}),
+    html.H6("The dataset comprises of 188 molecules trialed for mutagenicity on Salmonella typhimurium.",
+        className="card-subtitle", style={"margin-bottom":"1rem", "margin-left":"1rem"}),
+        dbc.Row([
+            html.Div([
+            html.Img(src=app.get_asset_url('mutagSchema.png'))
+        ],
+        style={'margin-left':'15rem', 'margin-bottom':'1rem'})
+        ],
+        align='center'
+        )
+
+])
 
 # Display Tables
 dataset_button_group = html.Div(
@@ -266,6 +266,13 @@ presentDataCard = dbc.Card(
             [
                 dbc.AccordionItem(
                     [
+                        schema_view
+                    ],
+                    title="Relational Schema"
+                ),
+
+                dbc.AccordionItem(
+                    [
                         html.H4("Mutagenesis Dataset", className="card-title", style={"margin-left":"1rem", "margin-top":"1rem"}),
                         html.H6("The dataset comprises of 188 molecules trialed for mutagenicity on Salmonella typhimurium.",
                         className="card-subtitle", style={"margin-bottom":"1rem", "margin-left":"1rem"}),
@@ -278,7 +285,7 @@ presentDataCard = dbc.Card(
                         graph_view
                     ],
                     title="Graph View"
-                )
+                ),
             ],
             start_collapsed=True
 
@@ -681,11 +688,6 @@ def returnExample(data):
         atom_array = data['atom']
         bond_array = data['bond']
         mol_array = data['molecule'][0]
-        mol_dict = {'ID':mol_array[0],
-            'Mutagenic':mol_array[5],
-            'logP':mol_array[3],
-            'ind1':mol_array[4]
-        }
 
         nodes = [
         {'data': {'id': atom_id, 'label': f'{atom_id}:{element}'}}
@@ -707,20 +709,25 @@ def returnExample(data):
                 ],
                 style={"width":"30rem"}
             ),
-            html.H4(['Selected Molecule:'], className = "card-title"),
-            html.Pre(json.dumps(mol_dict, indent=2))
             ]
         )
 
         return cytoscape
 
 
-
 @app.callback(Output('node-store', 'data'),
               Input('cytoscape-event-callbacks-1', 'tapNodeData'))
 def displayTapNodeData(data):
-    if data:
-        print(data)
+    if not data:
+        output_data = {
+        'id':'None',
+        'molecule_id':'None',
+        'element': 'None',
+        'atype': 'None',
+        'charge': 'None'
+        }
+        return json.dumps(output_data, indent=2)
+    else:
         atom_df = pd.read_csv('/Users/fl20994/Documents/IAI_CDT/Research_Project/XIML_ILP/rAIMEE/data/mutag188/atoms.csv')
         selected_atom = atom_df[atom_df['atom_id']==data['id']].values.tolist()[0]
         output_data = {
@@ -733,7 +740,6 @@ def displayTapNodeData(data):
         return json.dumps(output_data, indent=2)
 
 
-
 @app.callback(
     Output('node-info', 'children'),
     Input('node-store', 'data')
@@ -743,6 +749,21 @@ def create_nodeInfo(data):
         # convert string to json (needs fixing)
         node_dict = json.loads(data) 
         return html.Pre(json.dumps(node_dict, indent=2))
+
+
+@app.callback(
+    Output('sample-info', 'children'),
+    Input('selectedExample-store', 'data')
+)
+def create_exampleInfo(data):
+
+    mol_array = data['molecule'][0]
+    mol_dict = {'ID':mol_array[0],
+        'Mutagenic':mol_array[5],
+        'logP':mol_array[3],
+        'ind1':mol_array[4]
+    }
+    return html.Pre(json.dumps(mol_dict, indent=2))
 
 
 
